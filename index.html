@@ -105,18 +105,18 @@
       }
 
       try {
-        // This is a mock API. Replace with an actual working API for real use.
-        const response = await fetch(`https://api.y2mate.com/get-video?url=${encodeURIComponent(url)}`);
+        // Replace with the actual yt-dlp public API URL
+        const response = await fetch(`https://yt-dlp-api-2.vercel.app/dl?url=${encodeURIComponent(url)}`);
         const data = await response.json();
 
-        if (data.success) {
+        if (data.formats && data.formats.length > 0) {
           resultDiv.innerHTML = `
             <h3>${data.title}</h3>
             <img src="${data.thumbnail}" alt="Thumbnail"/>
             <div class="download-links">
-              ${data.downloads.map(link => `
+              ${data.formats.map(link => `
                 <a href="${link.url}" target="_blank" rel="noopener noreferrer">
-                  <button>${link.quality} - ${link.format}</button>
+                  <button>${link.format_note} - ${link.ext}</button>
                 </a>
               `).join("")}
             </div>
