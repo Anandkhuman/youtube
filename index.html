@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YouTube Video Downloader</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #1f1c2c, #928dab);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+
+    .downloader {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 25px;
+      background: #00c9a7;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00b298;
+    }
+
+    #result {
+      margin-top: 25px;
+      text-align: center;
+    }
+
+    #result img {
+      border-radius: 10px;
+      margin-bottom: 15px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .download-links a button {
+      display: block;
+      margin: 10px auto;
+      background: #4caf50;
+      padding: 10px 20px;
+      font-size: 14px;
+    }
+
+    .error {
+      color: #ff4d4d;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="downloader">
+    <h1>YouTube Video Downloader</h1>
+    <input type="text" id="videoUrl" placeholder="Paste YouTube video URL here" />
+    <button onclick="getDownloadLinks()">Download</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    async function getDownloadLinks() {
+      const url = document.getElementById("videoUrl").value.trim();
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "⏳ Fetching download links...";
+
+      if (!url) {
+        resultDiv.innerHTML = "<p class='error'>Please enter a valid YouTube URL.</p>";
+        return;
+      }
+
+      try {
+        const response = await fetch(`https://you-link.vercel.app/api?url=${encodeURIComponent(url)}`);
+        const data = await response.json();
+
+        if (data.download) {
+          resultDiv.innerHTML = `
+            <h3>${data.title}</h3>
+            <img src="${data.thumbnail}" alt="Thumbnail"/>
+            <div class="download-links">
+              ${data.download.map(link => `
+                <a href="${link.url}" target="_blank" rel="noopener noreferrer">
+                  <button>${link.quality} - ${link.type}</button>
+                </a>
+              `).join("")}
+            </div>
+          `;
+        } else {
+          resultDiv.innerHTML = "<p class='error'>❌ Failed to fetch download links. Please try another video.</p>";
+        }
+      } catch (error) {
+        console.error(error);
+        resultDiv.innerHTML = "<p class='error'>⚠️ Something went wrong. Try again later.</p>";
+      }
+    }
+  </script>
+</body>
+</html>
